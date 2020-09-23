@@ -1,0 +1,30 @@
+﻿using Restaurant.Order;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Restaurant.Models
+{
+    public class OrderRepository : IOrderRepository
+    {
+        public IList<string> GetCondiments()
+        {
+            return new List<string>
+            {
+                "Fries",
+                "Rice"
+            };
+        }
+
+        public IList<string> GetMainDishes()
+        {
+            return new List<string>
+            {
+                "Steak",
+                "Fish"
+            };
+        }
+    }
+}

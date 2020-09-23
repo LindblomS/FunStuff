@@ -1,0 +1,82 @@
+﻿<Window x:Class="Restaurant.Views.CreateOrderWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Restaurant.Views"
+        mc:Ignorable="d"
+        Title="CreateOrderWindow" Height="350" Width="500">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="250"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel
+            Grid.Row="0"
+            HorizontalAlignment="Left">
+
+            <Label Content="Main dishes"/>
+
+            <ComboBox
+                ItemsSource="{Binding MainDishes}" 
+                SelectedItem="{Binding SelectedMainDish}"
+                Width="100"/>
+
+            <Button
+                Content="Add"
+                Command="{Binding AddOrderItemCommand}"
+                Width="100"/>
+            
+        </DockPanel>
+
+        <ListView
+            Grid.Row="1"
+            ItemsSource="{Binding OrderItems}"
+            SelectedItem="{Binding SelectedOrderItem}">
+
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn 
+                        DisplayMemberBinding="{Binding Description}"
+                        Width="250"
+                        Header="Description"/>
+                    
+                    <GridViewColumn 
+                        DisplayMemberBinding="{Binding Price}"
+                        Width="70"
+                        Header="Price"/>
+                </GridView>
+            </ListView.View>
+            
+        </ListView>
+
+        <DockPanel Grid.Row="2">
+
+            <Button 
+                    Content="Remove" 
+                    Command="{Binding RemoveOrderItemCommand}"
+                    Width="100"/>
+            
+            <DockPanel HorizontalAlignment="Right">
+
+                <Button 
+                    Content="Ok" 
+                    Command="{Binding OkCommand}"
+                    Width="100"/>
+
+                <Button 
+                    Content="Cancel" 
+                    Command="{Binding CancelCommand}"
+                    Width="100"/>
+                
+            </DockPanel>
+
+
+
+        </DockPanel>
+        
+      
+    </Grid>
+</Window>
