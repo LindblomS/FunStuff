@@ -63,12 +63,12 @@
 
                 <Button 
                     Content="Ok" 
-                    Command="{Binding CreateOrderCommand}"
+                    Command="{Binding OkCommand}"
                     Width="100"/>
 
                 <Button 
                     Content="Cancel" 
-                    Command="{Binding CancelOrderCommand}"
+                    Command="{Binding CancelCommand}"
                     Width="100"/>
                 
             </DockPanel>

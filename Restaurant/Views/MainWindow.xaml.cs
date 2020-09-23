@@ -24,7 +24,6 @@ namespace Restaurant.Views
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
         }
     }
 }

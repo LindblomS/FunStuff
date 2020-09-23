@@ -9,26 +9,30 @@ using System.Windows.Input;
 
 namespace Restaurant.ViewModels
 {
-    public class CreateOrderViewModel : BaseViewModel, IRequireViewIdentification
+    public class CreateOrderViewModel : BaseViewModel, IOkOrCancel<IOrder>
     {
         private IOrder _order;
         private OrderItemViewModel _selectedOrderItem;
         private IList<string> _mainDishes;
         private readonly Guid _viewId;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IWindowFactory _windowFactory;
 
-        public CreateOrderViewModel()
+        public CreateOrderViewModel(IOrderRepository orderRepository, IWindowFactory windowFactory)
         {
+            _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+            _windowFactory = windowFactory ?? throw new ArgumentNullException(nameof(windowFactory));
             _order = new Order.Order();
             _mainDishes = GetMainDishes();
             _viewId = Guid.NewGuid();
             AddOrderItemCommand = new RelayCommand(execute => AddOrderItem(), canExcute => !string.IsNullOrEmpty(SelectedMainDish));
             RemoveOrderItemCommand = new RelayCommand(execute => RemoveOrderItem(), canExecute => _selectedOrderItem != null);
-            CreateOrderCommand = new RelayCommand(execute => CreateOrder());
-            CancelOrderCommand = new RelayCommand(execute => CancelOrder());
+            OkCommand = new RelayCommand(execute => CreateOrder());
+            CancelCommand = new RelayCommand(execute => CancelOrder());
         }
 
         public Guid ViewId => _viewId;
-        public IOrder Order => _order;
+        public IOrder ReturnObject => _order;
         public string SelectedMainDish { get; set; }
         public bool IsCanceled { get; private set; }
         public ObservableCollection<OrderItemViewModel> OrderItems => GetOrderItems();
@@ -41,8 +45,8 @@ namespace Restaurant.ViewModels
 
         public ICommand AddOrderItemCommand { get; set; }
         public ICommand RemoveOrderItemCommand { get; set; }
-        public ICommand CreateOrderCommand { get; set; }
-        public ICommand CancelOrderCommand { get; set; }
+        public ICommand OkCommand { get; set; }
+        public ICommand CancelCommand { get; set; }
 
         private void AddOrderItem()
         {
@@ -60,17 +64,16 @@ namespace Restaurant.ViewModels
 
             if (orderItem != null)
             {
-                var vm = new AddCondimentsViewModel();
-                var view = new AddCondimentsWindow();
-                view.DataContext = vm;
-                view.ShowDialog();
+                var addCondimentsWindow = _windowFactory.GetAddCondimentsWindow();
+                addCondimentsWindow.Window.ShowDialog();
+                var vm = (IOkOrCancel<IEnumerable<CondimentViewModel>>)addCondimentsWindow.ViewModel;
 
                 if (vm.IsCanceled)
                     return;
 
-                if (vm.Condiments.Any())
+                if (vm.ReturnObject.Any())
                 {
-                    foreach (var condiment in vm.Condiments.Where(c => c.Checked))
+                    foreach (var condiment in vm.ReturnObject.Where(c => c.Checked))
                     {
                         orderItem = CondimentHelper.AddCondimentToOrderItem(orderItem, condiment.Name);
                     }
@@ -103,11 +106,7 @@ namespace Restaurant.ViewModels
 
         private IList<string> GetMainDishes()
         {
-            return new List<string>
-            {
-                "Steak",
-                "Fish"
-            };
+            return _orderRepository.GetMainDishes();
         }
 
         private ObservableCollection<OrderItemViewModel> GetOrderItems()

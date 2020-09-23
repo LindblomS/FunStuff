@@ -1,17 +1,22 @@
 ﻿using Restaurant.Models;
+using Restaurant.Order;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Linq;
 
 namespace Restaurant.ViewModels
 {
-    public class AddCondimentsViewModel : BaseViewModel, IRequireViewIdentification
+    public class AddCondimentsViewModel : BaseViewModel, IOkOrCancel<IEnumerable<CondimentViewModel>>
     {
         private ObservableCollection<CondimentViewModel> _condiments;
         private readonly Guid _viewId;
+        private readonly IOrderRepository _orderRepository;
 
-        public AddCondimentsViewModel()
+        public AddCondimentsViewModel(IOrderRepository orderRepository)
         {
+            _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
             _condiments = GetCondiments();
             _viewId = Guid.NewGuid();
             OkCommand = new RelayCommand(execute => Ok());
@@ -21,6 +26,7 @@ namespace Restaurant.ViewModels
         public Guid ViewId => _viewId;
         public bool IsCanceled { get; private set; }
         public ObservableCollection<CondimentViewModel> Condiments => _condiments;
+        public IEnumerable<CondimentViewModel> ReturnObject => _condiments.AsEnumerable();
         public ICommand OkCommand { get; set; }
         public ICommand CancelCommand { get; set; }
 
@@ -40,11 +46,14 @@ namespace Restaurant.ViewModels
 
         private ObservableCollection<CondimentViewModel> GetCondiments()
         {
-            return new ObservableCollection<CondimentViewModel>
+            var condiemnts = new ObservableCollection<CondimentViewModel>();
+
+            foreach (var item in _orderRepository.GetCondiments())
             {
-                new CondimentViewModel { Name = "Fries" },
-                new CondimentViewModel { Name = "Rice" }
-            };
+                condiemnts.Add(new CondimentViewModel { Name = item });
+            }
+
+            return condiemnts;
         }
 
     }

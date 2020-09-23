@@ -50,11 +50,6 @@
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 
-                    <GridViewColumn 
-                        DisplayMemberBinding="{Binding ElapsedTime}"
-                        Header="Elapsed time"
-                        Width="90"/>
-
                 </GridView>
             </ListView.View>
         </ListView>

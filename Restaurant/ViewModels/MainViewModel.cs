@@ -9,14 +9,15 @@ namespace Restaurant.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
+        private readonly IWindowFactory _windowFactory;
         private ObservableCollection<OrderMakerViewModel> _orders;
 
-        public MainViewModel()
+        public MainViewModel(IWindowFactory windowFactory)
         {
             _orders = new ObservableCollection<OrderMakerViewModel>();
             CreateOrderMainCommand = new RelayCommand(execute => CreateOrder());
+            _windowFactory = windowFactory ?? throw new System.ArgumentNullException(nameof(windowFactory));
         }
-
 
         public ObservableCollection<OrderMakerViewModel> Orders => _orders;
         public ICommand CreateOrderMainCommand { get; private set; }
@@ -24,15 +25,14 @@ namespace Restaurant.ViewModels
         private void CreateOrder()
         {
             IOrder order = null;
-            var vm = new CreateOrderViewModel();
-            var window = new CreateOrderWindow();
-            window.DataContext = vm;
-            window.ShowDialog();
+            var createOrderWindow = _windowFactory.GetCreateOrderWindow();
+            createOrderWindow.Window.ShowDialog();
+            var vm = (IOkOrCancel<IOrder>)createOrderWindow.ViewModel;
 
             if (vm.IsCanceled)
                 return;
 
-            order = vm.Order;
+            order = vm.ReturnObject;
             var orderMaker = new OrderMakerViewModel(order, new OrderMaker.OrderMaker());
             Task.Run(() => orderMaker.MakeOrderAsync());
             _orders.Add(orderMaker);
